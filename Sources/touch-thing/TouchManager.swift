@@ -1,12 +1,13 @@
 import Foundation
 
 final class TouchManager {
+    private let settings: Settings
     private let loader = MTLoader()
 
     private static let currentLock = NSLock()
     nonisolated(unsafe) private static weak var _current: TouchManager?
 
-    private let mapper = CoordinateMapper()
+    private let mapper: CoordinateMapper
     private let cursor = CursorController()
 
     private static var current: TouchManager? {
@@ -38,7 +39,10 @@ final class TouchManager {
     private var startDevice: MTDeviceStartFn?
     private var device: UnsafeMutableRawPointer?
 
-    init() {
+    init(settings: Settings) {
+        self.settings = settings
+        self.mapper = CoordinateMapper(settings: settings)
+
         guard
             let createList: MTDeviceCreateListFn =
                 loader.symbol(named: "MTDeviceCreateList", as: MTDeviceCreateListFn.self)

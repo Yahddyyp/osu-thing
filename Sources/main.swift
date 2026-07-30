@@ -1,6 +1,8 @@
 import Foundation
 
-let manager = TouchManager()
+let settings = Settings()
+
+let manager = TouchManager(settings: settings)
 
 let interceptor = MouseInterceptor()
 interceptor.start()
