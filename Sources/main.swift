@@ -2,5 +2,7 @@ import Foundation
 
 let manager = TouchManager()
 
-print("Waiting for touch events...")
+let interceptor = MouseInterceptor()
+interceptor.start()
+
 RunLoop.main.run()
