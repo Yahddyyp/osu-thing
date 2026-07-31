@@ -2,6 +2,7 @@ import Foundation
 
 final class TouchManager {
     private let settings: Settings
+    private let touchState: TouchState
     private let loader = MTLoader()
 
     private static let currentLock = NSLock()
@@ -27,6 +28,7 @@ final class TouchManager {
         device, dataPtr, nFingers, timestamp, frameID in
 
         let fingers = dataPtr?.assumingMemoryBound(to: Finger.self)
+
         TouchManager.current?.handleContactFrame(
             fingers: fingers,
             count: Int(nFingers)
@@ -39,8 +41,9 @@ final class TouchManager {
     private var startDevice: MTDeviceStartFn?
     private var device: UnsafeMutableRawPointer?
 
-    init(settings: Settings) {
+    init(settings: Settings, touchState: TouchState) {
         self.settings = settings
+        self.touchState = touchState
         self.mapper = CoordinateMapper(settings: settings)
 
         guard
@@ -50,6 +53,7 @@ final class TouchManager {
             print("Couldn't resolve MTDeviceCreateList")
             return
         }
+
         guard
             let start: MTDeviceStartFn =
                 loader.symbol(named: "MTDeviceStart", as: MTDeviceStartFn.self)
@@ -57,24 +61,29 @@ final class TouchManager {
             print("Couldn't resolve MTDeviceStart")
             return
         }
+
         guard
             let register: MTRegisterContactFrameCallbackFn =
                 loader.symbol(
                     named: "MTRegisterContactFrameCallback",
-                    as: MTRegisterContactFrameCallbackFn.self)
+                    as: MTRegisterContactFrameCallbackFn.self
+                )
         else {
             print("Couldn't resolve MTRegisterContactFrameCallback")
             return
         }
 
-        print("MTDeviceCreateList resolved!")
         guard let devicesArray = createList()?.takeRetainedValue() else {
             print("No trackpads found")
             return
         }
+
         let count = CFArrayGetCount(devicesArray)
-        print("Found \(count) devices")
-        guard count > 0, let rawDevice = CFArrayGetValueAtIndex(devicesArray, 0) else {
+
+        guard
+            count > 0,
+            let rawDevice = CFArrayGetValueAtIndex(devicesArray, 0)
+        else {
             print("No trackpads found")
             return
         }
@@ -93,15 +102,29 @@ final class TouchManager {
         fingers: UnsafeMutablePointer<Finger>?,
         count: Int
     ) {
+        guard settings.enable else {
+            return
+        }
+
         guard let fingers, count > 0 else {
+            DispatchQueue.main.async { @MainActor [touchState] in
+                touchState.finger = nil
+            }
             return
         }
 
         let finger = fingers[0]
 
+        let x = finger.normalized.position.x
+        let y = finger.normalized.position.y
+
+        DispatchQueue.main.async { @MainActor [touchState] in
+            touchState.finger = TouchPoint(x: x, y: y)
+        }
+
         let point = mapper.map(
-            x: finger.normalized.position.x,
-            y: finger.normalized.position.y
+            x: x,
+            y: y
         )
 
         cursor.move(to: point)
