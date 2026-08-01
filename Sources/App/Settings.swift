@@ -7,6 +7,7 @@ struct ActiveArea: Codable, Equatable {
     var top: Float
     var bottom: Float
 
+    //defaults
     static let `default` = ActiveArea(
         left: 0,
         right: 1,
@@ -15,10 +16,18 @@ struct ActiveArea: Codable, Equatable {
     )
 }
 
+// For disable absolute tracking when ajusting settings
+enum DriverState {
+    case editing
+    case enabling
+}
+
 @Observable
 final class Settings {
+    var driverState: DriverState = .editing
     var enable = true
     var activeArea = ActiveArea.default
+
 }
 
 extension Settings: @unchecked Sendable {}

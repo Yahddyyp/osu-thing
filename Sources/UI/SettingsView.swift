@@ -29,20 +29,20 @@ struct SettingsView: View {
 
             HStack {
 
-                Button("Rest") {
+                Button("Reset") {
                     editingArea = .default
                 }.disabled(editingArea == .default)
 
                 Button("Cancel") {
                     editingArea = settings.activeArea
-                    settings.enable = true
+                    settings.driverState = .enabling
                 }
 
                 Spacer()
 
                 Button("Apply") {
                     settings.activeArea = editingArea
-                    settings.enable = true
+                    settings.driverState = .enabling
                 }
 
             }

@@ -22,17 +22,11 @@ struct TrackpadView: View {
 
             let left = CGFloat(area.left) * width
             let right = CGFloat(area.right) * width
+
             let top = CGFloat(area.top) * height
             let bottom = CGFloat(area.bottom) * height
 
             ZStack {
-
-                Text(
-                    touchState.finger.map {
-                        String(format: "(%.3f, %.3f)", $0.x, $0.y)
-                    } ?? "no finger"
-                )
-                .foregroundStyle(.red)
 
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color.gray.opacity(0.2))
@@ -128,9 +122,21 @@ struct TrackpadView: View {
                         .frame(width: 12, height: 12)
                         .position(
                             x: CGFloat(finger.x) * width,
-                            y: CGFloat(finger.y) * height
+                            y: (1 - CGFloat(finger.y)) * height
                         )
                 }
+
+                VStack {
+                    Text(
+                        touchState.finger.map {
+                            String(format: "(%.3f, %.3f)", $0.x, $0.y)
+                        } ?? "no finger"
+                    )
+                    .foregroundStyle(.red)
+
+                    Spacer()
+                }
+                .padding(.top, 12)
             }
         }
         .aspectRatio(1.6, contentMode: .fit)

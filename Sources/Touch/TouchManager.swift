@@ -102,7 +102,7 @@ final class TouchManager {
         fingers: UnsafeMutablePointer<Finger>?,
         count: Int
     ) {
-        guard settings.enable else {
+        guard settings.driverState == .enabling else {
             return
         }
 
