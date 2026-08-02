@@ -12,6 +12,10 @@ final class MouseInterceptor {
             eventsOfInterest: CGEventMask(mask),
             callback: { _, type, event, _ in
                 if type == .mouseMoved {
+                    let tag = event.getIntegerValueField(.eventSourceUserData)
+                    if tag == CursorController.syntheticEventTag {
+                        return Unmanaged.passRetained(event)
+                    }
                     return nil
                 }
                 return Unmanaged.passRetained(event)
