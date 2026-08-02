@@ -57,7 +57,7 @@ struct ActiveAreaOverlay: View {
         }
     }
 
-    // The active-area outline; drag it to move the whole rectangle.
+    // The active-area outline
     private var selectedRect: some View {
         RoundedRectangle(cornerRadius: 8)
             .stroke(.blue, lineWidth: 3)
