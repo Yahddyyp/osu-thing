@@ -31,6 +31,9 @@ window.contentView = NSHostingView(
     )
 )
 
+let hotkeys = HotKeyManager(settings: settings)
+hotkeys.register()
+
 window.makeKeyAndOrderFront(nil)
 
 app.setActivationPolicy(.regular)

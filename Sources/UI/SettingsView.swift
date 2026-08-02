@@ -25,7 +25,6 @@ struct SettingsView: View {
                 touchState: touchState,
                 area: $editingArea
             )
-            .frame(width: 350)
 
             HStack {
 
@@ -35,14 +34,22 @@ struct SettingsView: View {
 
                 Button("Cancel") {
                     editingArea = settings.activeArea
-                    settings.driverState = .enabling
+                    settings.driverState = .enable
                 }
 
                 Spacer()
 
                 Button("Apply") {
                     settings.activeArea = editingArea
-                    settings.driverState = .enabling
+                    settings.driverState = .enable
+                }
+
+                Button(settings.driverState == .enable ? "Disable Driver" : "Enable Driver") {
+                    if settings.driverState == .enable {
+                        settings.driverState = .disable
+                    } else {
+                        settings.driverState = .enable
+                    }
                 }
 
             }

@@ -28,5 +28,6 @@ final class CoordinateMapper {
             x: screenX,
             y: screenY
         )
+
     }
 }

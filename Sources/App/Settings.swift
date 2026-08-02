@@ -19,7 +19,8 @@ struct ActiveArea: Codable, Equatable {
 // For disable absolute tracking when ajusting settings
 enum DriverState {
     case editing
-    case enabling
+    case enable
+    case disable
 }
 
 @Observable

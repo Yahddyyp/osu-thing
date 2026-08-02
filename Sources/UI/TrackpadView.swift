@@ -13,6 +13,7 @@ struct TrackpadView: View {
     @Binding var area: ActiveArea
 
     @State private var dragStartArea: ActiveArea?
+    @State private var stateBeforeDrag: DriverState?
 
     var body: some View {
         GeometryReader { geometry in
@@ -23,8 +24,8 @@ struct TrackpadView: View {
             let left = CGFloat(area.left) * width
             let right = CGFloat(area.right) * width
 
-            let top = CGFloat(area.top) * height
-            let bottom = CGFloat(area.bottom) * height
+            let top = (1 - CGFloat(area.top)) * height
+            let bottom = (1 - CGFloat(area.bottom)) * height
 
             ZStack {
 
@@ -51,6 +52,8 @@ struct TrackpadView: View {
 
                                 if dragStartArea == nil {
                                     dragStartArea = area
+                                    stateBeforeDrag = settings.driverState
+                                    settings.driverState = .editing
                                 }
 
                                 guard let start = dragStartArea else {
@@ -81,6 +84,10 @@ struct TrackpadView: View {
                             }
                             .onEnded { _ in
                                 dragStartArea = nil
+                                if let state = stateBeforeDrag {
+                                    settings.driverState = state
+                                }
+                                stateBeforeDrag = nil
                             }
                     )
 
@@ -139,7 +146,7 @@ struct TrackpadView: View {
                 .padding(.top, 12)
             }
         }
-        .aspectRatio(1.6, contentMode: .fit)
+        .frame(width: 350, height: 350 / 1.6)
     }
 
     @ViewBuilder
@@ -162,6 +169,8 @@ struct TrackpadView: View {
 
                         if dragStartArea == nil {
                             dragStartArea = area
+                            stateBeforeDrag = settings.driverState
+                            settings.driverState = .editing
                         }
 
                         guard let start = dragStartArea else {
@@ -220,6 +229,10 @@ struct TrackpadView: View {
                     }
                     .onEnded { _ in
                         dragStartArea = nil
+                        if let state = stateBeforeDrag {
+                            settings.driverState = state
+                        }
+                        stateBeforeDrag = nil
                     }
             )
     }
