@@ -61,8 +61,8 @@ struct SettingsView: View {
 
             Text(String(format: "Left:   %.3f", editingArea.left))
             Text(String(format: "Right:  %.3f", editingArea.right))
-            Text(String(format: "Top:    %.3f", editingArea.top))
-            Text(String(format: "Bottom: %.3f", editingArea.bottom))
+            Text(String(format: "Min Y:  %.3f", editingArea.minY))
+            Text(String(format: "Max Y:  %.3f", editingArea.maxY))
         }
         .font(.system(.body, design: .monospaced))
 

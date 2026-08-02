@@ -12,7 +12,7 @@ final class CoordinateMapper {
         let area = settings.activeArea
 
         let normalizedX = (x - area.left) / (area.right - area.left)
-        let normalizedY = (y - area.top) / (area.bottom - area.top)
+        let normalizedY = (y - area.minY) / (area.maxY - area.minY)
 
         let clampedX = min(max(normalizedX, 0), 1)
         let clampedY = min(max(normalizedY, 0), 1)

@@ -4,15 +4,16 @@ import Observation
 struct ActiveArea: Codable, Equatable {
     var left: Float
     var right: Float
-    var top: Float
-    var bottom: Float
+
+    var minY: Float
+    var maxY: Float
 
     //defaults
     static let `default` = ActiveArea(
         left: 0,
         right: 1,
-        top: 0,
-        bottom: 1
+        minY: 0,
+        maxY: 1
     )
 }
 
