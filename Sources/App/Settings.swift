@@ -8,7 +8,7 @@ struct ActiveArea: Codable, Equatable {
     var minY: Float
     var maxY: Float
 
-    //defaults
+    // defaults
     static let `default` = ActiveArea(
         left: 0,
         right: 1,
@@ -17,7 +17,7 @@ struct ActiveArea: Codable, Equatable {
     )
 }
 
-// For disable absolute tracking when ajusting settings
+// For disabling absolute tracking when adjusting settings
 enum DriverState {
     case editing
     case enable
@@ -28,8 +28,17 @@ enum DriverState {
 final class Settings {
     var driverState: DriverState = .editing
     var enable = true
-    var activeArea = ActiveArea.default
+    var activeArea: ActiveArea
 
+    init() {
+        activeArea = ConfigManager.load().activeArea
+    }
+
+    func save() {
+        try? ConfigManager.save(
+            Config(activeArea: activeArea)
+        )
+    }
 }
 
 extension Settings: @unchecked Sendable {}

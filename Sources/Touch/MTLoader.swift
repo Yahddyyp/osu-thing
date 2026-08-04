@@ -11,7 +11,7 @@ final class MTLoader {
     }
 
     init() {
-        //clear previous errors
+        // clear previous errors
         dlerror()
         handle = dlopen(Self.frameworkPath, RTLD_NOW)
 

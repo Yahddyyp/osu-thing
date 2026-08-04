@@ -42,6 +42,7 @@ struct SettingsView: View {
                 Button("Apply") {
                     settings.activeArea = editingArea
                     settings.driverState = .enable
+                    settings.save()
                 }
 
                 Button(settings.driverState == .enable ? "Disable Driver" : "Enable Driver") {
