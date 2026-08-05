@@ -5,6 +5,8 @@ final class TouchManager {
     private let touchState: TouchState
     private let loader = MTLoader()
 
+    private var trackedFingerID: Int?
+
     private static let currentLock = NSLock()
     nonisolated(unsafe) private static weak var _current: TouchManager?
 
@@ -107,13 +109,37 @@ final class TouchManager {
         }
 
         guard let fingers, count > 0 else {
+            trackedFingerID = nil
+
             DispatchQueue.main.async { @MainActor [touchState] in
                 touchState.finger = nil
             }
             return
         }
 
-        let finger = fingers[0]
+        var finger: Finger?
+
+        // Countinue tracking the current finger if it still exists
+        if let id = trackedFingerID {
+            for i in 0..<count {
+                let candidate = fingers[i]
+                if Int(candidate.identifier) == id {
+                    finger = candidate
+                    break
+                }
+            }
+        }
+
+        // if tracked finger dissappered, start tracking a new one
+        if finger == nil {
+
+            finger = fingers[0]
+            trackedFingerID = Int(finger!.identifier)
+        }
+
+        guard let finger else {
+            return
+        }
 
         let x = finger.normalized.position.x
         let y = finger.normalized.position.y
