@@ -26,11 +26,20 @@ struct SettingsView: View {
                 area: $editingArea
             )
 
+            Toggle(
+                "Automatically enable while playing osu",
+                isOn: Binding(
+                    get: { settings.automaticEnable },
+                    set: { settings.automaticEnable = $0 }
+                )
+            )
+
             HStack {
 
                 Button("Reset") {
                     editingArea = .default
-                }.disabled(editingArea == .default)
+                }
+                .disabled(editingArea == .default)
 
                 Button("Cancel") {
                     editingArea = settings.activeArea
@@ -45,12 +54,18 @@ struct SettingsView: View {
                     settings.save()
                 }
 
-                Button(settings.driverState == .enable ? "Disable Driver" : "Enable Driver") {
-                    if settings.driverState == .enable {
-                        settings.driverState = .disable
-                    } else {
-                        settings.driverState = .enable
+                if !settings.automaticEnable {
+
+                    Button(settings.driverState == .enable ? "Disable Driver" : "Enable Driver") {
+
+                        if settings.driverState == .enable {
+                            settings.driverState = .disable
+                        } else {
+                            settings.driverState = .enable
+                        }
+
                     }
+
                 }
 
             }

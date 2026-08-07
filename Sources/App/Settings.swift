@@ -29,6 +29,7 @@ final class Settings {
     var driverState: DriverState = .editing
     var enable = true
     var activeArea: ActiveArea
+    var automaticEnable = false
 
     init() {
         activeArea = ConfigManager.load().activeArea

@@ -9,6 +9,9 @@ let manager = TouchManager(
     touchState: touchState
 )
 
+let watcher = OsuWatcher(settings: settings)
+watcher.start()
+
 let interceptor = MouseInterceptor()
 interceptor.start()
 
