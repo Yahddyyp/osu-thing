@@ -65,7 +65,7 @@ final class HotKeyManager {
             settings.driverState = .enable
         }
 
-        print("Driver:", settings.driverState)
+        // print("Driver:", settings.driverState)
     }
 
 }

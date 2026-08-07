@@ -17,12 +17,13 @@ final class MTLoader {
 
         if handle == nil {
             if let error = dlerror() {
-                print("Failed to load framework \(Self.frameworkPath)")
-                print(String(cString: error))
+                // print("Failed to load framework \(Self.frameworkPath)")
+                // print(String(cString: error))
 
             }
         } else {
-            print("Successfully loaded MultitouchSupport!")
+            // For debuging
+            // print("Successfully loaded MultitouchSupport!")
         }
     }
 
@@ -41,8 +42,8 @@ final class MTLoader {
 
         guard let ptr = dlsym(handle, name) else {
             if let error = dlerror() {
-                print("Failed to resolve symbol '\(name)':")
-                print(String(cString: error))
+                // print("Failed to resolve symbol '\(name)':")
+                // print(String(cString: error))
             }
             return nil
         }

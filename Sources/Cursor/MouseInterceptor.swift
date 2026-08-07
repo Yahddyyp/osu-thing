@@ -51,7 +51,7 @@ final class MouseInterceptor {
         )
 
         guard let eventTap else {
-            print("Failed to create event tap")
+            // print("Failed to create event tap")
             return
         }
 

@@ -31,7 +31,7 @@ final class OsuWatcher: @unchecked Sendable {
         }
 
         guard let app = NSWorkspace.shared.frontmostApplication else {
-            print("No frontmost app")
+            // print("No frontmost app")
             settings.driverState = .disable
             return
         }
@@ -82,7 +82,7 @@ final class OsuWatcher: @unchecked Sendable {
         }
 
         guard let title = titleValue as? String else {
-            print("Window title wasn't a String")
+            // print("Window title wasn't a String")
             return false
         }
 

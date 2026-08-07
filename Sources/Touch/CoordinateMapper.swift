@@ -45,7 +45,7 @@ final class CoordinateMapper {
             result.maxY = center + newHeight / 2
         }
 
-        print(result)
+        // print(result)
         return result
     }
 

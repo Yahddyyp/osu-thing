@@ -52,7 +52,7 @@ final class TouchManager {
             let createList: MTDeviceCreateListFn =
                 loader.symbol(named: "MTDeviceCreateList", as: MTDeviceCreateListFn.self)
         else {
-            print("Couldn't resolve MTDeviceCreateList")
+            // print("Couldn't resolve MTDeviceCreateList")
             return
         }
 
@@ -60,7 +60,7 @@ final class TouchManager {
             let start: MTDeviceStartFn =
                 loader.symbol(named: "MTDeviceStart", as: MTDeviceStartFn.self)
         else {
-            print("Couldn't resolve MTDeviceStart")
+            // print("Couldn't resolve MTDeviceStart")
             return
         }
 
@@ -71,13 +71,13 @@ final class TouchManager {
                     as: MTRegisterContactFrameCallbackFn.self
                 )
         else {
-            print("Couldn't resolve MTRegisterContactFrameCallback")
+            // print("Couldn't resolve MTRegisterContactFrameCallback")
             return
         }
 
         guard let devicesArray = createList()?.takeRetainedValue() else {
             // debug check
-            print("No trackpads found")
+            // print("No trackpads found")
             return
         }
 
@@ -88,7 +88,7 @@ final class TouchManager {
             let rawDevice = CFArrayGetValueAtIndex(devicesArray, 0)
         else {
             // debug check
-            print("No trackpads found")
+            // print("No trackpads found")
             return
         }
 
