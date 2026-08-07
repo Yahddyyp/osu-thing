@@ -27,7 +27,6 @@ final class OsuWatcher: @unchecked Sendable {
     private func update() {
 
         guard settings.automaticEnable else {
-            print("Automatic enable is OFF")
             return
         }
 

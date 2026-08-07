@@ -11,6 +11,7 @@ struct TrackpadView: View {
         GeometryReader { geometry in
             ZStack {
                 ActiveAreaOverlay(
+                    settings: settings,
                     area: $area,
                     size: geometry.size,
                     onDragBegan: beginDrag,

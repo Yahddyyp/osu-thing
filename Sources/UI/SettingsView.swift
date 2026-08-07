@@ -34,6 +34,14 @@ struct SettingsView: View {
                 )
             )
 
+            Toggle(
+                "Lock Aspect Ratio",
+                isOn: Binding(
+                    get: { settings.lockAspectRatio },
+                    set: { settings.lockAspectRatio = $0 }
+                )
+            )
+
             HStack {
 
                 Button("Reset") {

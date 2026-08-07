@@ -26,9 +26,11 @@ enum DriverState {
 
 @Observable
 final class Settings {
+    // settings
     var driverState: DriverState = .editing
     var activeArea: ActiveArea
     var automaticEnable = false
+    var lockAspectRatio = false
 
     init() {
         activeArea = ConfigManager.load().activeArea

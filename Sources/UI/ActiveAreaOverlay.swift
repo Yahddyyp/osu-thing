@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ActiveAreaOverlay: View {
+    let settings: Settings
     @Binding var area: ActiveArea
     let size: CGSize
     let onDragBegan: () -> Void
@@ -12,6 +13,10 @@ struct ActiveAreaOverlay: View {
         makeUIRect(from: area, size: size)
     }
 
+    private var effectiveRect: UIRect {
+        return rect
+    }
+
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
@@ -21,6 +26,22 @@ struct ActiveAreaOverlay: View {
                 .stroke(.gray, lineWidth: 2)
 
             selectedRect
+
+            if settings.lockAspectRatio {
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(
+                        Color.green,
+                        style: StrokeStyle(
+                            lineWidth: 2,
+                            dash: [6]
+                        )
+                    )
+                    .frame(
+                        width: effectiveRect.width,
+                        height: effectiveRect.height
+                    )
+                    .position(effectiveRect.center)
+            }
 
             ResizeHandle(
                 area: $area,
