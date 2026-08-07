@@ -2,10 +2,9 @@ import AppKit
 import ApplicationServices
 import Foundation
 
-final class OsuWatcher {
+final class OsuWatcher: @unchecked Sendable {
 
     private let settings: Settings
-
     private var timer: Timer?
 
     init(settings: Settings) {
@@ -28,68 +27,71 @@ final class OsuWatcher {
     private func update() {
 
         guard settings.automaticEnable else {
+            print("Automatic enable is OFF")
             return
         }
 
         guard let app = NSWorkspace.shared.frontmostApplication else {
+            print("No frontmost app")
             settings.driverState = .disable
             return
         }
 
-        guard app.bundleIdentifier == "sh.ppy.osulazer" else {
+        guard app.bundleIdentifier == "sh.ppy.osu.lazer" else {
             settings.driverState = .disable
             return
         }
 
-        if isPlayingBeatmap() {
-            settings.driverState = .enable
-        } else {
-            settings.driverState = .disable
-        }
+        settings.driverState =
+            isPlayingBeatmap()
+            ? .enable
+            : .disable
     }
 
     private func isPlayingBeatmap() -> Bool {
 
-        guard
-            let app = NSWorkspace.shared.frontmostApplication,
-            let pid = app.processIdentifier as pid_t?
-        else {
+        guard let app = NSWorkspace.shared.frontmostApplication else {
             return false
         }
 
-        let application = AXUIElementCreateApplication(pid)
+        let application = AXUIElementCreateApplication(app.processIdentifier)
 
         var value: CFTypeRef?
 
-        let result = AXUIElementCopyAttributeValue(
+        let focusedResult = AXUIElementCopyAttributeValue(
             application,
-            kAXWindowsAttribute as CFString,
+            kAXFocusedWindowAttribute as CFString,
             &value
         )
 
-        guard
-            result == .success,
-            let windows = value as? [AXUIElement],
-            let window = windows.first
-        else {
+        guard focusedResult == .success else {
             return false
         }
+
+        let window = value as! AXUIElement
 
         var titleValue: CFTypeRef?
 
-        guard
-            AXUIElementCopyAttributeValue(
-                window,
-                kAXTitleAttribute as CFString,
-                &titleValue
-            ) == .success,
-            let title = titleValue as? String
-        else {
+        let titleResult = AXUIElementCopyAttributeValue(
+            window,
+            kAXTitleAttribute as CFString,
+            &titleValue
+        )
+
+        guard titleResult == .success else {
             return false
         }
 
-        print(title)
+        guard let title = titleValue as? String else {
+            print("Window title wasn't a String")
+            return false
+        }
 
-        return title != "osu!"
+        let normalized =
+            title
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+
+        return normalized != "osu!"
     }
 }

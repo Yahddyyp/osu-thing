@@ -43,15 +43,21 @@ struct SettingsView: View {
 
                 Button("Cancel") {
                     editingArea = settings.activeArea
-                    settings.driverState = .enable
+
+                    if !settings.automaticEnable {
+                        settings.driverState = .enable
+                    }
                 }
 
                 Spacer()
 
                 Button("Apply") {
                     settings.activeArea = editingArea
-                    settings.driverState = .enable
                     settings.save()
+
+                    if !settings.automaticEnable {
+                        settings.driverState = .enable
+                    }
                 }
 
                 if !settings.automaticEnable {
@@ -83,7 +89,9 @@ struct SettingsView: View {
         .font(.system(.body, design: .monospaced))
 
         .padding().onAppear {
-            settings.enable = false
+            if !settings.automaticEnable {
+                settings.driverState = .editing
+            }
         }
     }
 }

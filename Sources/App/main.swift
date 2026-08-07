@@ -12,7 +12,7 @@ let manager = TouchManager(
 let watcher = OsuWatcher(settings: settings)
 watcher.start()
 
-let interceptor = MouseInterceptor()
+let interceptor = MouseInterceptor(settings: settings)
 interceptor.start()
 
 let app = NSApplication.shared
