@@ -76,6 +76,7 @@ final class TouchManager {
         }
 
         guard let devicesArray = createList()?.takeRetainedValue() else {
+            // debug check
             print("No trackpads found")
             return
         }
@@ -86,6 +87,7 @@ final class TouchManager {
             count > 0,
             let rawDevice = CFArrayGetValueAtIndex(devicesArray, 0)
         else {
+            // debug check
             print("No trackpads found")
             return
         }

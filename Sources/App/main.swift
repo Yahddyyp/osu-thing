@@ -17,22 +17,31 @@ interceptor.start()
 
 let app = NSApplication.shared
 
+let contentView = SettingsView(
+    settings: settings,
+    touchState: touchState
+)
+
+let hostingView = NSHostingView(rootView: contentView)
+
 let window = NSWindow(
-    contentRect: NSRect(x: 100, y: 100, width: 500, height: 400),
+    contentRect: .zero,
     styleMask: [.titled, .closable, .miniaturizable, .resizable],
     backing: .buffered,
     defer: false
 )
 
 window.title = "osu! Trackpad Driver"
-window.center()
+window.contentView = hostingView
 
-window.contentView = NSHostingView(
-    rootView: SettingsView(
-        settings: settings,
-        touchState: touchState
+let fittingSize = hostingView.fittingSize
+window.setContentSize(
+    NSSize(
+        width: max(fittingSize.width, 800),
+        height: fittingSize.height
     )
 )
+window.center()
 
 let hotkeys = HotKeyManager(settings: settings)
 hotkeys.register()
