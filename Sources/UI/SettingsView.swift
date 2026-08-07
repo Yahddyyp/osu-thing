@@ -27,7 +27,7 @@ struct SettingsView: View {
             )
 
             Toggle(
-                "Automatically enable while playing osu",
+                "Automatically enable while playing a beatmap",
                 isOn: Binding(
                     get: { settings.automaticEnable },
                     set: { settings.automaticEnable = $0 }

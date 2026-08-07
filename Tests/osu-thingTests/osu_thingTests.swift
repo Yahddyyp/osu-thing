@@ -13,6 +13,42 @@ private func expectClose(
     #expect(abs(actual - expected) <= tolerance, comment, sourceLocation: sourceLocation)
 }
 
+@Test("Config decodes legacy JSON without new fields")
+func configDecodesLegacyJSON() throws {
+    let legacy = """
+    {
+        "activeArea": {
+            "left": 0.1,
+            "right": 0.9,
+            "minY": 0.2,
+            "maxY": 0.8
+        }
+    }
+    """
+
+    let config = try JSONDecoder().decode(Config.self, from: Data(legacy.utf8))
+
+    #expect(config.automaticEnable == false)
+    #expect(config.lockAspectRatio == false)
+    #expect(config.activeArea == ActiveArea(left: 0.1, right: 0.9, minY: 0.2, maxY: 0.8))
+}
+
+@Test("Config round-trips all fields through encode/decode")
+func configRoundTripsAllFields() throws {
+    let config = Config(
+        activeArea: ActiveArea(left: 0.25, right: 0.75, minY: 0.25, maxY: 0.75),
+        automaticEnable: true,
+        lockAspectRatio: true
+    )
+
+    let data = try JSONEncoder().encode(config)
+    let decoded = try JSONDecoder().decode(Config.self, from: data)
+
+    #expect(decoded.automaticEnable == true)
+    #expect(decoded.lockAspectRatio == true)
+    #expect(decoded.activeArea == config.activeArea)
+}
+
 @Test("UIRect ↔ ActiveArea round-trips without drift")
 func uiRectRoundTrips() {
     let areas: [ActiveArea] = [

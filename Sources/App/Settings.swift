@@ -33,12 +33,19 @@ final class Settings {
     var lockAspectRatio = false
 
     init() {
-        activeArea = ConfigManager.load().activeArea
+        let config = ConfigManager.load()
+        activeArea = config.activeArea
+        automaticEnable = config.automaticEnable
+        lockAspectRatio = config.lockAspectRatio
     }
 
     func save() {
         try? ConfigManager.save(
-            Config(activeArea: activeArea)
+            Config(
+                activeArea: activeArea,
+                automaticEnable: automaticEnable,
+                lockAspectRatio: lockAspectRatio
+            )
         )
     }
 }
