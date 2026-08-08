@@ -1,5 +1,5 @@
+import AppKit
 import Foundation
-import SwiftUI
 
 let settings = Settings()
 let touchState = TouchState()
@@ -9,46 +9,33 @@ let manager = TouchManager(
     touchState: touchState
 )
 
-let watcher = OsuWatcher(settings: settings)
+let interceptor = MouseInterceptor(
+    settings: settings
+)
+
+interceptor.start()
+
+let watcher = OsuWatcher(
+    settings: settings
+)
+
 watcher.start()
 
-let interceptor = MouseInterceptor(settings: settings)
-interceptor.start()
+let hotkeys = HotKeyManager(
+    settings: settings
+)
+
+hotkeys.register()
 
 let app = NSApplication.shared
 
-let contentView = SettingsView(
+app.setActivationPolicy(.regular)
+
+let delegate = AppDelegate(
     settings: settings,
     touchState: touchState
 )
 
-let hostingView = NSHostingView(rootView: contentView)
-
-let window = NSWindow(
-    contentRect: .zero,
-    styleMask: [.titled, .closable, .miniaturizable, .resizable],
-    backing: .buffered,
-    defer: false
-)
-
-window.title = "osu! Trackpad Driver"
-window.contentView = hostingView
-
-let fittingSize = hostingView.fittingSize
-window.setContentSize(
-    NSSize(
-        width: max(fittingSize.width, 800),
-        height: fittingSize.height
-    )
-)
-window.center()
-
-let hotkeys = HotKeyManager(settings: settings)
-hotkeys.register()
-
-window.makeKeyAndOrderFront(nil)
-
-app.setActivationPolicy(.regular)
-app.activate(ignoringOtherApps: true)
+app.delegate = delegate
 
 app.run()
