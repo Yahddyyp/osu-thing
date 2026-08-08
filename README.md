@@ -18,12 +18,12 @@ brew install --cask osu-thing
 ```
 
 ## Usage 
-1. Just open the app and select your trackpad area you would like to use
+1. Just open the app (and give it the required permissions) and select your trackpad area you would like to use
 2. Press apply and you are done 
 3. To disable the driver just press disable driver in the app or `F8` on your keyboard
 
 ## Inspiration 
-- `https://github.com/EricPanDev/Mac-Trackpad-OSU-Tablet`
+- https://github.com/EricPanDev/Mac-Trackpad-OSU-Tablet
 
 This app is made by me, expect bugs
 
