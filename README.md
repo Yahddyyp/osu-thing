@@ -27,4 +27,6 @@ brew install --cask osu-thing
 
 This app is made by me, expect bugs
 
+Contributions welcome 
+
 <p align="center"><a href="https://github.com/yahddyyp/osu-thing/blob/main/LICENSE"><img src="https://img.shields.io/static/v1.svg?style=for-the-badge&label=License&message=MIT&logoColor=cdd6f4&colorA=1e1e2e&colorB=cba6f7"/></a></p>
