@@ -4,9 +4,8 @@ set -euo pipefail
 
 APP_NAME="osu-thing"
 BUNDLE_IDENTIFIER="com.osu-thing.app"
-
-VERSION="${1:-0.1.0}"
-BUILD_NUMBER="${BUILD_NUMBER:-1}"
+MIN_MACOS_VERSION="26.0"
+ARCH="arm64"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
@@ -15,7 +14,6 @@ CONTENTS_DIR="$APP_BUNDLE/Contents"
 MACOS_DIR="$CONTENTS_DIR/MacOS"
 RESOURCES_DIR="$CONTENTS_DIR/Resources"
 
-EXECUTABLE="$ROOT_DIR/.build/release/$APP_NAME"
 ICON="$ROOT_DIR/assets/$APP_NAME.icns"
 
 info() {
@@ -28,19 +26,38 @@ error() {
 }
 
 command -v swift >/dev/null 2>&1 ||
-  error "Swift is required"
+  error "swift is not installed"
 
 command -v codesign >/dev/null 2>&1 ||
-  error "codesign is required"
+  error "codesign is not present"
+
+command -v git >/dev/null 2>&1 ||
+  error "git is not installed"
 
 [[ -f "$ICON" ]] ||
   error "Icon not found: $ICON"
 
 cd "$ROOT_DIR"
 
+# Use the latest Git tag as the app version
+VERSION="$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')"
+VERSION="${VERSION:-0.1.0}"
+
+# Use the Git commit count as the build number
+BUILD_NUMBER="$(git rev-list --count HEAD)"
+
 info "Building $APP_NAME..."
 
-swift build -c release
+swift build \
+  -c release \
+  --arch "$ARCH"
+
+EXECUTABLE="$(
+  swift build \
+    -c release \
+    --arch "$ARCH" \
+    --show-bin-path
+)/$APP_NAME"
 
 [[ -f "$EXECUTABLE" ]] ||
   error "Build succeeded, but executable was not found"
@@ -63,7 +80,7 @@ cp "$ICON" "$RESOURCES_DIR/$APP_NAME.icns"
 
 info "Creating Info.plist..."
 
-cat >"$CONTENTS_DIR/Info.plist" <<EOF
+cat > "$CONTENTS_DIR/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
     "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -98,8 +115,7 @@ cat >"$CONTENTS_DIR/Info.plist" <<EOF
     <string>$VERSION</string>
 
     <key>LSMinimumSystemVersion</key>
-    <string>15.0</string>
-
+    <string>$MIN_MACOS_VERSION</string>
 </dict>
 </plist>
 EOF
@@ -124,9 +140,11 @@ codesign \
 echo
 echo "Built $APP_NAME.app"
 echo
-echo "Version:     $VERSION"
-echo "Build:       $BUILD_NUMBER"
-echo "Location:    $APP_BUNDLE"
+echo "Version:       $VERSION"
+echo "Build:         $BUILD_NUMBER"
+echo "Architecture:  $ARCH"
+echo "Minimum macOS: $MIN_MACOS_VERSION"
+echo "Location:      $APP_BUNDLE"
 echo
 echo "Run with:"
 echo "  open \"$APP_BUNDLE\""
