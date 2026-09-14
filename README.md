@@ -1,10 +1,13 @@
-# Osu Trackpad Driver 
-
-![preview](assets/preview.png)
+<p align="center">
+  <img src=".github/images/banner.png" alt="osu-thing">
+</p>
 
 A app that allows your trackpad to have **absolute positioning** for playing osu!
 
+![preview](.github/preview.png)
+
 ## Features 
+
 - A `.config` file so you can transfer your settings from one machine to another easily.
 - Automatically detect and enable the driver when playing a beatmap
 - Aspect Ratio Fixer so if you use a external monitor your trackpad will scale accordingly 
@@ -18,9 +21,14 @@ brew install --cask osu-thing
 ```
 
 ## Usage 
+
 1. Just open the app (and give it the required permissions) and select your trackpad area you would like to use
 2. Press apply and you are done 
 3. To disable the driver just press disable driver in the app or `F8` on your keyboard
+
+## Special Thanks
+
+- [@tradicije](https://github.com/tradicije) - for creating the app icon and banner
 
 ## Inspiration 
 - https://github.com/EricPanDev/Mac-Trackpad-OSU-Tablet
