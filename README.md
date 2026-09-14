@@ -2,7 +2,7 @@
   <img src=".github/images/banner.png" alt="osu-thing">
 </p>
 
-A app that allows your trackpad to have **absolute positioning** for playing osu!
+<p align="center">A app that allows your trackpad to have **absolute positioning** for playing osu!</p>
 
 ![preview](.github/images/preview.png)
 
