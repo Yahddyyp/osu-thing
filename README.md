@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".github/images/banner.png" alt="osu-thing">
+  <img src=".github/images/banner.png" width="1100"">
 </p>
 
 <p align="center">An app that allows your trackpad to have <b>absolute positioning</b> for playing osu!</p>
