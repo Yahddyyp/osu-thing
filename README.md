@@ -4,7 +4,7 @@
 
 A app that allows your trackpad to have **absolute positioning** for playing osu!
 
-![preview](.github/preview.png)
+![preview](.github/images/preview.png)
 
 ## Features 
 
