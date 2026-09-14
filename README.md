@@ -14,7 +14,7 @@
 
 ## Installation
 
-> [!WARNING]
+> [!NOTE]
 > **Private Framework:** osu-thing uses Apple's private
 > `MultitouchSupport.framework` to access raw trackpad input.
 > This framework is not a public API and may change or stop working
