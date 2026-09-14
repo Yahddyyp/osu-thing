@@ -11,20 +11,11 @@ final class MTLoader {
     }
 
     init() {
-        // clear previous errors
+        // clear any previous errors
         dlerror()
+
+        // Attempt to load the MultitouchSupport framework
         handle = dlopen(Self.frameworkPath, RTLD_NOW)
-
-        if handle == nil {
-            if let error = dlerror() {
-                // print("Failed to load framework \(Self.frameworkPath)")
-                // print(String(cString: error))
-
-            }
-        } else {
-            // For debuging
-            // print("Successfully loaded MultitouchSupport!")
-        }
     }
 
     deinit {
@@ -41,10 +32,6 @@ final class MTLoader {
         dlerror()
 
         guard let ptr = dlsym(handle, name) else {
-            if let error = dlerror() {
-                // print("Failed to resolve symbol '\(name)':")
-                // print(String(cString: error))
-            }
             return nil
         }
 

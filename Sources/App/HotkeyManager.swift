@@ -9,7 +9,7 @@ final class HotKeyManager {
         self.settings = settings
     }
     func register() {
-        var hotKeyID = EventHotKeyID(
+        let hotKeyID = EventHotKeyID(
             signature: OSType(0x4F53_5554),
             id: 1
         )
@@ -33,7 +33,6 @@ final class HotKeyManager {
             { _, event, userData in
 
                 guard
-                    let event,
                     let userData
                 else {
                     return noErr
