@@ -3,9 +3,7 @@
 set -euo pipefail
 
 APP_NAME="osu-thing"
-BUNDLE_IDENTIFIER="com.osu-thing.app"
-MIN_MACOS_VERSION="26.0"
-ARCH="arm64"
+BUNDLE_IDENTIFIER="com.yahddyyp.osu-thing"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
@@ -49,13 +47,11 @@ BUILD_NUMBER="$(git rev-list --count HEAD)"
 info "Building $APP_NAME..."
 
 swift build \
-  -c release \
-  --arch "$ARCH"
+  -c release
 
 EXECUTABLE="$(
   swift build \
     -c release \
-    --arch "$ARCH" \
     --show-bin-path
 )/$APP_NAME"
 
@@ -80,7 +76,7 @@ cp "$ICON" "$RESOURCES_DIR/$APP_NAME.icns"
 
 info "Creating Info.plist..."
 
-cat > "$CONTENTS_DIR/Info.plist" <<EOF
+cat >"$CONTENTS_DIR/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
     "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -114,8 +110,6 @@ cat > "$CONTENTS_DIR/Info.plist" <<EOF
     <key>CFBundleShortVersionString</key>
     <string>$VERSION</string>
 
-    <key>LSMinimumSystemVersion</key>
-    <string>$MIN_MACOS_VERSION</string>
 </dict>
 </plist>
 EOF
@@ -140,11 +134,9 @@ codesign \
 echo
 echo "Built $APP_NAME.app"
 echo
-echo "Version:       $VERSION"
-echo "Build:         $BUILD_NUMBER"
-echo "Architecture:  $ARCH"
-echo "Minimum macOS: $MIN_MACOS_VERSION"
-echo "Location:      $APP_BUNDLE"
+echo "Version: $VERSION"
+echo "Build:   $BUILD_NUMBER"
+echo "Location: $APP_BUNDLE"
 echo
 echo "Run with:"
 echo "  open \"$APP_BUNDLE\""

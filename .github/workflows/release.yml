@@ -1,0 +1,109 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build osu! Trackpad Driver
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Make build script executable
+        run: chmod +x scripts/build.sh
+
+      - name: Build app
+        run: ./scripts/build.sh
+
+      - name: Package app
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          ditto \
+            -c -k \
+            --sequesterRsrc \
+            --keepParent \
+            osu-thing.app \
+            "osu-thing-v${VERSION}.zip"
+
+      - name: Generate checksum
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          shasum -a 256 \
+            "osu-thing-v${VERSION}.zip" \
+            > SHA256SUMS
+
+      - name: Extract changelog
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          awk -v version="$VERSION" '
+            $0 ~ "^## \\[" version "\\]" {
+              found=1
+              next
+            }
+            found && $0 ~ "^## \\[" {
+              exit
+            }
+            found {
+              print
+            }
+          ' CHANGELOG.md > RELEASE_NOTES.md
+
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "No changelog entry found for v${VERSION}"
+            exit 1
+          fi
+
+          echo "Release notes:"
+          cat RELEASE_NOTES.md
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: osu-thing-release
+          path: |
+            osu-thing-v*.zip
+            SHA256SUMS
+            RELEASE_NOTES.md
+
+  release:
+    name: Create Release
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: osu-thing-release
+          path: artifacts
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            artifacts/*.zip \
+            artifacts/SHA256SUMS \
+            --title "osu! Trackpad Driver ${GITHUB_REF_NAME}" \
+            --notes-file artifacts/RELEASE_NOTES.md
