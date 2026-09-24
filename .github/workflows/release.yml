@@ -2,8 +2,6 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
     tags:
       - "v*"
 
@@ -53,7 +51,6 @@ jobs:
             > SHA256SUMS
 
       - name: Extract changelog
-        if: github.ref_type == 'tag'
         shell: bash
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
@@ -89,9 +86,8 @@ jobs:
             RELEASE_NOTES.md
 
   release:
-    name: Create Release
+    name: Create GitHub Release
     needs: build
-    if: github.ref_type == 'tag'
     runs-on: ubuntu-24.04
 
     steps:
@@ -108,8 +104,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+
           gh release create "${GITHUB_REF_NAME}" \
-            artifacts/*.zip \
+            "artifacts/osu-thing-v${VERSION}.zip" \
             artifacts/SHA256SUMS \
             --title "osu! Trackpad Driver ${GITHUB_REF_NAME}" \
             --notes-file artifacts/RELEASE_NOTES.md
