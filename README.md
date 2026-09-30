@@ -1,10 +1,10 @@
 <p align="center">
-  <img src=".github/images/banner.png" width="1100"">
+  <img src="assets/images/banner.png" width="1100"">
 </p>
 
 <p align="center">An app that allows your trackpad to have <b>absolute positioning</b> for playing osu!</p>
 
-![preview](.github/images/preview.png)
+![preview](assets/images/preview.png)
 
 ## Features 
 

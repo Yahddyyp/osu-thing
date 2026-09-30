@@ -5,14 +5,14 @@ set -euo pipefail
 APP_NAME="osu-thing"
 BUNDLE_IDENTIFIER="com.yahddyyp.osu-thing"
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 APP_BUNDLE="$ROOT_DIR/$APP_NAME.app"
 CONTENTS_DIR="$APP_BUNDLE/Contents"
 MACOS_DIR="$CONTENTS_DIR/MacOS"
 RESOURCES_DIR="$CONTENTS_DIR/Resources"
 
-ICON="$ROOT_DIR/assets/$APP_NAME.icns"
+ICON="$ROOT_DIR/Resources/$APP_NAME.icns"
 
 info() {
   printf '==> %s\n' "$1"
@@ -37,6 +37,34 @@ command -v git >/dev/null 2>&1 ||
 
 cd "$ROOT_DIR"
 
+# Prefer the macOS 26 SDK.
+# The macOS 27 SDK turns some SwiftUI property wrappers into macros,
+# which the Command Line Tools compiler may fail to load.
+PINNED_SDK="/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk"
+
+if [[ -n "${DEVELOPER_DIR:-}" ]]; then
+  SDK="$(xcrun --show-sdk-path)"
+elif [[ -d "$PINNED_SDK" ]]; then
+  SDK="$PINNED_SDK"
+else
+  SDK="$(xcrun --show-sdk-path)"
+fi
+
+SDK_COMPAT_FLAGS=()
+
+if [[ "$SDK" == "$PINNED_SDK" ]]; then
+  SDK_COMPAT_FLAGS=(
+    -Xswiftc
+    -Xfrontend
+    -Xswiftc
+    -interface-compiler-version
+    -Xswiftc
+    -Xfrontend
+    -Xswiftc
+    6.3.2
+  )
+fi
+
 # Use the latest Git tag as the app version
 VERSION="$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')"
 VERSION="${VERSION:-0.1.0}"
@@ -46,14 +74,22 @@ BUILD_NUMBER="$(git rev-list --count HEAD)"
 
 info "Building $APP_NAME..."
 
+# Suppress normal SwiftPM output while keeping compiler errors visible
 swift build \
-  -c release
+  -c release \
+  --sdk "$SDK" \
+  "${SDK_COMPAT_FLAGS[@]}" \
+  >/dev/null
 
-EXECUTABLE="$(
-  swift build \
-    -c release \
-    --show-bin-path
-)/$APP_NAME"
+# Get the executable location without performing another build
+BIN_PATH="$(swift build \
+  -c release \
+  --sdk "$SDK" \
+  "${SDK_COMPAT_FLAGS[@]}" \
+  --show-bin-path \
+  2>/dev/null)"
+
+EXECUTABLE="$BIN_PATH/$APP_NAME"
 
 [[ -f "$EXECUTABLE" ]] ||
   error "Build succeeded, but executable was not found"
@@ -120,7 +156,8 @@ codesign \
   --force \
   --deep \
   --sign - \
-  "$APP_BUNDLE"
+  "$APP_BUNDLE" \
+  >/dev/null
 
 info "Verifying app..."
 
@@ -129,14 +166,9 @@ codesign \
   --deep \
   --strict \
   --verbose=2 \
-  "$APP_BUNDLE"
+  "$APP_BUNDLE" \
+  >/dev/null
 
-echo
 echo "Built $APP_NAME.app"
-echo
-echo "Version: $VERSION"
-echo "Build:   $BUILD_NUMBER"
-echo "Location: $APP_BUNDLE"
-echo
-echo "Run with:"
-echo "  open \"$APP_BUNDLE\""
+echo "Binary: $MACOS_DIR/$APP_NAME"
+echo "Open: open \"$APP_BUNDLE\""
