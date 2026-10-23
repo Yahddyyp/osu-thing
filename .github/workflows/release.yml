@@ -9,15 +9,49 @@ permissions:
   contents: write
 
 jobs:
+  preflight:
+    name: Verify release ref
+    runs-on: macos-26
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Verify release source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-(beta|rc|alpha)(\.?[0-9]*)?)?$ ]]; then
+            echo "Unsupported release tag format: $GITHUB_REF_NAME" >&2
+            exit 1
+          fi
+
+          COMMIT_SHA="$(git rev-parse 'HEAD^{commit}')"
+          RELATION="$(gh api "repos/$GITHUB_REPOSITORY/compare/$COMMIT_SHA...main" --jq '.status + ":" + .merge_base_commit.sha')"
+          if [[ "$RELATION" != "identical:$COMMIT_SHA" && "$RELATION" != "ahead:$COMMIT_SHA" ]]; then
+            echo "Release tag does not point to a commit on main" >&2
+            exit 1
+          fi
+
+          VERSION="${GITHUB_REF_NAME#v}"
+          BASE_VERSION="${VERSION%%-*}"
+
+          if ! grep -Eq "^## \\[$VERSION\\]" CHANGELOG.md && ! grep -Eq "^## \\[$BASE_VERSION\\]" CHANGELOG.md; then
+            echo "CHANGELOG.md has no release entry for $VERSION or $BASE_VERSION" >&2
+            exit 1
+          fi
+
   build:
     name: Build osu! Trackpad Driver
+    needs: preflight
     runs-on: macos-26
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
 
       - name: Check Swift toolchain
         run: |
@@ -25,11 +59,10 @@ jobs:
           swift --version
           xcrun --find swift
 
-      - name: Make build script executable
-        run: chmod +x scripts/build.sh
-
       - name: Build app
-        run: ./scripts/build.sh
+        run: |
+          chmod +x scripts/build.sh
+          ./scripts/build.sh
 
       - name: Package app
         run: |
@@ -42,20 +75,39 @@ jobs:
             osu-thing.app \
             "osu-thing-v${VERSION}.zip"
 
-      - name: Generate checksum
-        run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: osu-thing-release
+          path: "*.zip"
 
-          shasum -a 256 \
-            "osu-thing-v${VERSION}.zip" \
-            > SHA256SUMS
+  release:
+    name: Create Release
+    needs: [preflight, build]
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: osu-thing-release
+          path: artifacts
 
       - name: Extract changelog
         shell: bash
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
+          BASE_VERSION="${VERSION%%-*}"
 
-          awk -v version="$VERSION" '
+          TARGET_VERSION="$VERSION"
+          if ! grep -Eq "^## \\[$TARGET_VERSION\\]" CHANGELOG.md; then
+            TARGET_VERSION="$BASE_VERSION"
+          fi
+
+          awk -v version="$TARGET_VERSION" '
             $0 ~ "^## \\[" version "\\]" {
               found=1
               next
@@ -69,45 +121,26 @@ jobs:
           ' CHANGELOG.md > RELEASE_NOTES.md
 
           if [ ! -s RELEASE_NOTES.md ]; then
-            echo "No changelog entry found for v${VERSION}"
+            echo "No changelog entry found for v${TARGET_VERSION}"
             exit 1
           fi
-
-          echo "Release notes:"
-          cat RELEASE_NOTES.md
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: osu-thing-release
-          path: |
-            osu-thing-v*.zip
-            SHA256SUMS
-            RELEASE_NOTES.md
-
-  release:
-    name: Create GitHub Release
-    needs: build
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v5
-        with:
-          name: osu-thing-release
-          path: artifacts
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           VERSION="${GITHUB_REF_NAME#v}"
 
-          gh release create "${GITHUB_REF_NAME}" \
-            "artifacts/osu-thing-v${VERSION}.zip" \
-            artifacts/SHA256SUMS \
-            --title "osu! Trackpad Driver ${GITHUB_REF_NAME}" \
-            --notes-file artifacts/RELEASE_NOTES.md
+          CREATE_ARGS=(
+            "${GITHUB_REF_NAME}"
+            artifacts/*.zip
+            --title "${GITHUB_REF_NAME}"
+            --notes-file RELEASE_NOTES.md
+          )
+
+          if [[ "$VERSION" =~ -(beta|rc|alpha) ]]; then
+            CREATE_ARGS+=(--prerelease)
+          fi
+
+          gh release create "${CREATE_ARGS[@]}"
