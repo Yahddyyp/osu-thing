@@ -13,29 +13,28 @@ let interceptor = MouseInterceptor(
     settings: settings
 )
 
-interceptor.start()
-
 let watcher = OsuWatcher(
     settings: settings
 )
-
-watcher.start()
 
 let hotkeys = HotKeyManager(
     settings: settings
 )
 
-hotkeys.register()
+let accessibilityManager = AccessibilityManager()
 
 let app = NSApplication.shared
-
 app.setActivationPolicy(.regular)
 
 let delegate = AppDelegate(
     settings: settings,
-    touchState: touchState
-)
+    touchState: touchState,
+    accessibilityManager: accessibilityManager
+) {
+    interceptor.start()
+    watcher.start()
+    hotkeys.register()
+}
 
 app.delegate = delegate
-
 app.run()

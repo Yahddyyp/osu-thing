@@ -14,89 +14,89 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Text("osu! Trackpad Driver")
-                .font(.largeTitle)
+            VStack(spacing: 20) {
+                Text("osu-thing")
+                    .font(.largeTitle)
 
-            Text("Active Area")
-                .font(.headline)
+                Text("Active Area")
+                    .font(.headline)
 
-            TrackpadView(
-                settings: settings,
-                touchState: touchState,
-                area: $editingArea
-            )
-
-            Toggle(
-                "Automatically enable while playing a beatmap",
-                isOn: Binding(
-                    get: { settings.automaticEnable },
-                    set: { settings.automaticEnable = $0 }
+                TrackpadView(
+                    settings: settings,
+                    touchState: touchState,
+                    area: $editingArea
                 )
-            )
 
-            Toggle(
-                "Lock Aspect Ratio",
-                isOn: Binding(
-                    get: { settings.lockAspectRatio },
-                    set: { settings.lockAspectRatio = $0 }
+                Toggle(
+                    "Automatically enable while playing a beatmap",
+                    isOn: Binding(
+                        get: { settings.automaticEnable },
+                        set: { settings.automaticEnable = $0 }
+                    )
                 )
-            )
 
-            HStack {
+                Toggle(
+                    "Lock Aspect Ratio",
+                    isOn: Binding(
+                        get: { settings.lockAspectRatio },
+                        set: { settings.lockAspectRatio = $0 }
+                    )
+                )
 
-                Button("Reset") {
-                    editingArea = .default
-                }
-                .disabled(editingArea == .default)
-
-                Button("Cancel") {
-                    editingArea = settings.activeArea
-
-                    if !settings.automaticEnable {
-                        settings.driverState = .enable
+                HStack {
+                    Button("Reset") {
+                        editingArea = .default
                     }
-                }
+                    .disabled(editingArea == .default)
 
-                Spacer()
+                    Button("Cancel") {
+                        editingArea = settings.activeArea
 
-                Button("Apply") {
-                    settings.activeArea = editingArea
-                    settings.save()
-
-                    if !settings.automaticEnable {
-                        settings.driverState = .enable
-                    }
-                }
-
-                if !settings.automaticEnable {
-
-                    Button(settings.driverState == .enable ? "Disable Driver" : "Enable Driver") {
-
-                        if settings.driverState == .enable {
-                            settings.driverState = .disable
-                        } else {
+                        if !settings.automaticEnable {
                             settings.driverState = .enable
                         }
-
                     }
 
+                    Spacer()
+
+                    Button("Apply") {
+                        settings.activeArea = editingArea
+                        settings.save()
+
+                        if !settings.automaticEnable {
+                            settings.driverState = .enable
+                        }
+                    }
+
+                    if !settings.automaticEnable {
+                        Button(
+                            settings.driverState == .enable
+                                ? "Disable Driver"
+                                : "Enable Driver"
+                        ) {
+                            if settings.driverState == .enable {
+                                settings.driverState = .disable
+                            } else {
+                                settings.driverState = .enable
+                            }
+                        }
+                    }
                 }
-
             }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Current Area")
+                    .font(.headline)
+
+                Text(String(format: "Left:   %.3f", editingArea.left))
+                Text(String(format: "Right:  %.3f", editingArea.right))
+                Text(String(format: "Min Y:  %.3f", editingArea.minY))
+                Text(String(format: "Max Y:  %.3f", editingArea.maxY))
+            }
+            .font(.system(.body, design: .monospaced))
         }
-
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Current Area")
-                .font(.headline)
-
-            Text(String(format: "Left:   %.3f", editingArea.left))
-            Text(String(format: "Right:  %.3f", editingArea.right))
-            Text(String(format: "Min Y:  %.3f", editingArea.minY))
-            Text(String(format: "Max Y:  %.3f", editingArea.maxY))
-        }
-        .font(.system(.body, design: .monospaced))
-
-        .padding().onAppear {
+        .padding()
+        .onAppear {
             if !settings.automaticEnable {
                 settings.driverState = .editing
             }

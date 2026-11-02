@@ -5,18 +5,70 @@ import SwiftUI
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let settings: Settings
     private let touchState: TouchState
+    private let accessibilityManager: AccessibilityManager
+    private let onAccessibilityGranted: () -> Void
 
     private var window: NSWindow?
+    private var didStartComponents = false
 
-    init(settings: Settings, touchState: TouchState) {
+    init(
+        settings: Settings,
+        touchState: TouchState,
+        accessibilityManager: AccessibilityManager,
+        onAccessibilityGranted: @escaping () -> Void
+    ) {
         self.settings = settings
         self.touchState = touchState
+        self.accessibilityManager = accessibilityManager
+        self.onAccessibilityGranted = onAccessibilityGranted
+
         super.init()
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         setupMainMenu()
         showWindow()
+
+        accessibilityManager.checkPermission()
+        updatePermissionState()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationDidBecomeActive),
+            name: NSApplication.didBecomeActiveNotification,
+            object: nil
+        )
+    }
+
+    @objc
+    private func applicationDidBecomeActive() {
+        accessibilityManager.checkPermission()
+        updatePermissionState()
+    }
+
+    private func updatePermissionState() {
+        guard accessibilityManager.isGranted else {
+            window?.contentView = NSHostingView(
+                rootView: AccessibilityPermissionView(
+                    manager: accessibilityManager
+                )
+            )
+            return
+        }
+
+        window?.contentView = NSHostingView(
+            rootView: SettingsView(
+                settings: settings,
+                touchState: touchState
+            )
+        )
+
+        guard !didStartComponents else {
+            return
+        }
+
+        didStartComponents = true
+        onAccessibilityGranted()
     }
 
     func applicationShouldHandleReopen(
@@ -40,7 +92,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let appMenu = NSMenu()
 
         let quitItem = NSMenuItem(
-            title: "Quit osu! Trackpad Driver",
+            title: "Quit osu-thing",
             action: #selector(NSApplication.terminate(_:)),
             keyEquivalent: "q"
         )
@@ -90,19 +142,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             defer: false
         )
 
-        window.title = "osu! Trackpad Driver"
+        window.title = "osu-thing"
         window.center()
-
-        window.contentView = NSHostingView(
-            rootView: SettingsView(
-                settings: settings,
-                touchState: touchState
-            )
-        )
-
         window.isReleasedWhenClosed = false
 
         self.window = window
+
+        updatePermissionState()
 
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
