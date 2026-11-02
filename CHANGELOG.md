@@ -6,8 +6,8 @@ All notable changes to this project are documented here.
 
 ### Added
 
-- Automated release builds for macOS and Linux.
+- Add a enable acessibility screen when acessibility is disabled.
 
-## [1.0.0] - 2026-08-08
+## [0.1.0] - 2026-08-08
 - Initial release 
 
