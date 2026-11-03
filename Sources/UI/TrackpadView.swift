@@ -28,16 +28,16 @@ struct TrackpadView: View {
     }
 
     private func beginDrag() {
-        if stateBeforeDrag == nil {
-            stateBeforeDrag = settings.driverState
-            settings.driverState = .editing
-        }
+        guard stateBeforeDrag == nil else { return }
+
+        stateBeforeDrag = settings.driverState
+        settings.driverState = .editing
     }
 
     private func endDrag() {
-        if let state = stateBeforeDrag {
-            settings.driverState = state
-        }
+        guard let previousState = stateBeforeDrag else { return }
+
+        settings.driverState = previousState
         stateBeforeDrag = nil
     }
 }

@@ -9,12 +9,12 @@ struct AccessibilityPermissionView: View {
                 .font(.system(size: 44))
                 .foregroundStyle(Color.accentColor)
 
-            Text("Accessibility Permissions Required")
+            Text("Accessibility Permission Required")
                 .font(.title2.bold())
 
             Text(
                 """
-                osu-thing needs Accessibility permissions
+                osu-thing needs Accessibility permission
                 """
             )
             .multilineTextAlignment(.center)

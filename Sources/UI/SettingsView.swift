@@ -51,10 +51,6 @@ struct SettingsView: View {
 
                     Button("Cancel") {
                         editingArea = settings.activeArea
-
-                        if !settings.automaticEnable {
-                            settings.driverState = .enable
-                        }
                     }
 
                     Spacer()
@@ -62,10 +58,6 @@ struct SettingsView: View {
                     Button("Apply") {
                         settings.activeArea = editingArea
                         settings.save()
-
-                        if !settings.automaticEnable {
-                            settings.driverState = .enable
-                        }
                     }
 
                     if !settings.automaticEnable {
@@ -96,10 +88,5 @@ struct SettingsView: View {
             .font(.system(.body, design: .monospaced))
         }
         .padding()
-        .onAppear {
-            if !settings.automaticEnable {
-                settings.driverState = .editing
-            }
-        }
     }
 }

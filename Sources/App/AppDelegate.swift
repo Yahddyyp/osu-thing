@@ -2,14 +2,17 @@ import AppKit
 import SwiftUI
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private let settings: Settings
     private let touchState: TouchState
     private let accessibilityManager: AccessibilityManager
     private let onAccessibilityGranted: () -> Void
 
+    private var menuBarController: MenuBarController?
+    private var hasInstalledContent = false
     private var window: NSWindow?
     private var didStartComponents = false
+    private var didInstallGrantedContent = false
 
     init(
         settings: Settings,
@@ -27,6 +30,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         setupMainMenu()
+
+        menuBarController = MenuBarController(
+            settings: settings,
+            openSettings: { [weak self] in
+                self?.showWindow()
+            },
+            toggleDriver: { [weak self] in
+                guard let self else { return }
+
+                self.settings.driverState =
+                    self.settings.driverState == .enable ? .disable : .enable
+            },
+            isDriverEnabled: { [weak self] in
+                self?.settings.driverState == .enable
+            }
+        )
+
         showWindow()
 
         accessibilityManager.checkPermission()
@@ -47,7 +67,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func updatePermissionState() {
-        guard accessibilityManager.isGranted else {
+        let isGranted = accessibilityManager.isGranted
+
+        // Don't replace the content view unless permission state changed.
+        guard !hasInstalledContent || isGranted != didInstallGrantedContent else {
+            return
+        }
+
+        hasInstalledContent = true
+        didInstallGrantedContent = isGranted
+
+        if !isGranted {
             window?.contentView = NSHostingView(
                 rootView: AccessibilityPermissionView(
                     manager: accessibilityManager
@@ -118,7 +148,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.mainMenu = mainMenu
     }
 
-    private func showWindow() {
+    func showWindow() {
         if let window {
             window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
@@ -147,6 +177,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.isReleasedWhenClosed = false
 
         self.window = window
+        window.delegate = self
 
         updatePermissionState()
 
