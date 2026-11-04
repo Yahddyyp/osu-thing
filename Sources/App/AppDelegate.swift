@@ -172,7 +172,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             defer: false
         )
 
-        window.title = "osu-thing"
         window.center()
         window.isReleasedWhenClosed = false
 
