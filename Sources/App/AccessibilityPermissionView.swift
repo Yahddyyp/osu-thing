@@ -30,7 +30,7 @@ struct AccessibilityPermissionView: View {
                 manager.openSystemSettings()
             }
 
-            Text("System Settings → Privacy & Security → Accessibility")
+            Text("System Settings → Privacy & Security → Device Control and Data Access")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
