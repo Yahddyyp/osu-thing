@@ -6,6 +6,7 @@ All notable changes to this project are documented here.
 
 ### Added
 
+- Finally added a icon to the app.
 - Add a enable acessibility screen when acessibility is disabled.
 - Made a very simple menu bar app.
 - Redid the ui of the app.

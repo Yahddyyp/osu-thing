@@ -9,6 +9,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     private let toggleDriver: () -> Void
     private let isDriverEnabled: () -> Bool
 
+    private var menuRefreshTimer: Timer?
+    private var lastAutomaticEnable: Bool
+
     init(
         settings: Settings,
         openSettings: @escaping () -> Void,
@@ -19,6 +22,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         self.openSettings = openSettings
         self.toggleDriver = toggleDriver
         self.isDriverEnabled = isDriverEnabled
+        self.lastAutomaticEnable = settings.automaticEnable
 
         statusItem = NSStatusBar.system.statusItem(
             withLength: NSStatusItem.variableLength
@@ -29,6 +33,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         setupStatusItem()
         setupMenu()
         updateMenu()
+        startMenuRefreshTimer()
     }
 
     private func setupStatusItem() {
@@ -37,8 +42,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         }
 
         button.image = NSImage(
-            // TODO: Change this icon
-            systemSymbolName: "computermouse",
+            systemSymbolName: "cursorarrow.click",
             accessibilityDescription: "osu-thing"
         )
 
@@ -50,6 +54,26 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.delegate = self
     }
 
+    private func startMenuRefreshTimer() {
+        menuRefreshTimer = Timer.scheduledTimer(
+            withTimeInterval: 0.25,
+            repeats: true
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.refreshMenuIfNeeded()
+            }
+        }
+    }
+
+    private func refreshMenuIfNeeded() {
+        guard settings.automaticEnable != lastAutomaticEnable else {
+            return
+        }
+
+        lastAutomaticEnable = settings.automaticEnable
+        updateMenu()
+    }
+
     func menuWillOpen(_ menu: NSMenu) {
         updateMenu()
     }
@@ -57,13 +81,15 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     private func updateMenu() {
         menu.removeAllItems()
 
-        let driverItem = NSMenuItem(
-            title: isDriverEnabled() ? "Disable Driver" : "Enable Driver",
-            action: #selector(toggleDriverAction),
-            keyEquivalent: ""
-        )
-        driverItem.target = self
-        menu.addItem(driverItem)
+        if !settings.automaticEnable {
+            let driverItem = NSMenuItem(
+                title: isDriverEnabled() ? "Disable Driver" : "Enable Driver",
+                action: #selector(toggleDriverAction),
+                keyEquivalent: ""
+            )
+            driverItem.target = self
+            menu.addItem(driverItem)
+        }
 
         let settingsItem = NSMenuItem(
             title: "Settings…",
