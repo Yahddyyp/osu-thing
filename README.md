@@ -41,6 +41,7 @@ brew install --cask osu-thing
 ## Special Thanks
 
 - [@tradicije](https://github.com/tradicije) - for creating the app icon and banner
+- [@MEMORIEmusic](https://github.com/MEMORIEmusic) - for creating the initial ui designs
 
 ## Inspiration 
 - https://github.com/EricPanDev/Mac-Trackpad-OSU-Tablet
