@@ -20,7 +20,7 @@
 > This framework is not a public API and may change or stop working
 > in previous or future macOS versions.
 >
-> osu-thing currently targets **macOS 26.0 on Apple Silicon**.
+> osu-thing currently targets **macOS 27.0**.
  
 ### Using homebrew
 
