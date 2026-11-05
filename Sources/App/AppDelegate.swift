@@ -44,7 +44,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             },
             isDriverEnabled: { [weak self] in
                 self?.settings.driverState == .enable
-            }
+            },
+            accessibilityManager: accessibilityManager
         )
 
         showWindow()

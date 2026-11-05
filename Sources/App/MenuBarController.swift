@@ -8,6 +8,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     private let menu = NSMenu()
     private let toggleDriver: () -> Void
     private let isDriverEnabled: () -> Bool
+    private let accessibilityManager: AccessibilityManager
 
     private var menuRefreshTimer: Timer?
     private var lastAutomaticEnable: Bool
@@ -16,13 +17,15 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         settings: Settings,
         openSettings: @escaping () -> Void,
         toggleDriver: @escaping () -> Void,
-        isDriverEnabled: @escaping () -> Bool
+        isDriverEnabled: @escaping () -> Bool,
+        accessibilityManager: AccessibilityManager
     ) {
         self.settings = settings
         self.openSettings = openSettings
         self.toggleDriver = toggleDriver
         self.isDriverEnabled = isDriverEnabled
         self.lastAutomaticEnable = settings.automaticEnable
+        self.accessibilityManager = accessibilityManager
 
         statusItem = NSStatusBar.system.statusItem(
             withLength: NSStatusItem.variableLength
@@ -82,13 +85,23 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.removeAllItems()
 
         if !settings.automaticEnable {
-            let driverItem = NSMenuItem(
-                title: isDriverEnabled() ? "Disable Driver" : "Enable Driver",
-                action: #selector(toggleDriverAction),
-                keyEquivalent: ""
-            )
-            driverItem.target = self
-            menu.addItem(driverItem)
+            if accessibilityManager.isGranted {
+                let driverItem = NSMenuItem(
+                    title: isDriverEnabled() ? "Disable Driver" : "Enable Driver",
+                    action: #selector(toggleDriverAction),
+                    keyEquivalent: ""
+                )
+                driverItem.target = self
+                menu.addItem(driverItem)
+            } else {
+                let permissionItem = NSMenuItem(
+                    title: "Grant Accessibility Access…",
+                    action: #selector(openAccessibilitySettings),
+                    keyEquivalent: ""
+                )
+                permissionItem.target = self
+                menu.addItem(permissionItem)
+            }
         }
 
         let settingsItem = NSMenuItem(
@@ -102,7 +115,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
-            title: "Quit osu-thing",
+            title: "Quit",
             action: #selector(quitApp),
             keyEquivalent: ""
         )
@@ -124,5 +137,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc
     private func quitApp() {
         NSApp.terminate(nil)
+    }
+
+    @objc private func openAccessibilitySettings() {
+        accessibilityManager.openSystemSettings()
     }
 }
