@@ -61,8 +61,8 @@ jobs:
 
       - name: Build app
         run: |
-          chmod +x scripts/build.sh
-          ./scripts/build.sh
+          chmod +x build.sh
+          ./build.sh
 
       - name: Package app
         run: |
