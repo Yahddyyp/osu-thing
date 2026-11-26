@@ -40,12 +40,15 @@ brew install --cask osu-thing
 
 ## Special Thanks
 
-- [@tradicije](https://github.com/tradicije) - for creating the app icon and banner
-- [@MEMORIEmusic](https://github.com/MEMORIEmusic) - for creating the initial ui designs
+- [@tradicije](https://github.com/tradicije) - for designing the app icon and banner
+- [@MEMORIEmusic](https://github.com/MEMORIEmusic) - for designing the initial ui designs
 
 ## Inspiration 
+
 - https://github.com/EricPanDev/Mac-Trackpad-OSU-Tablet
 
-This app is made by me, expect bugs
+## License
 
-<p align="center"><a href="https://github.com/yahddyyp/osu-thing/blob/main/LICENSE"><img src="https://img.shields.io/static/v1.svg?style=for-the-badge&label=License&message=MIT&logoColor=cdd6f4&colorA=1e1e2e&colorB=cba6f7"/></a></p>
+[GPL 3.0 or later](./LICENSE), copyright 2026 Yahddyyp. Project artwork and branding, including the osu-thing name, logo, icons, and visual identity, are covered separately in [TRADEMARKS.md](/TRADEMARKS.md).
+
+This app is made by me, expect bugs
